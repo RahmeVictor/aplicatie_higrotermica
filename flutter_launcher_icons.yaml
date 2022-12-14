@@ -1,0 +1,17 @@
+dev_dependencies:
+  flutter_launcher_icons: any
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "iconitza.png"
+  min_sdk_android: 21 # android min sdk min:16, default 21
+  web:
+    generate: true
+    image_path: "iconitza.png"
+    background_color: "#hexcode"
+    theme_color: "#hexcode"
+  windows:
+    generate: true
+    image_path: "iconitza.png"
+    icon_size: 48 # min:48, max:256, default: 48

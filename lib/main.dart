@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-import 'calcul.dart';
+import 'ajutoare_calcul.dart';
 import 'pagina_calcul.dart';
 
 void main() {
@@ -33,7 +33,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final formKey = GlobalKey<FormState>();
-  final listKey = GlobalKey<AnimatedListState>();
+  GlobalKey<AnimatedListState> listKey = GlobalKey<AnimatedListState>();
 
   final List<Strat> straturi = [];
 
@@ -62,30 +62,50 @@ class _MyHomePageState extends State<MyHomePage> {
                               deleteCallback: removeItem)));
                 }),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton.icon(
-                  onPressed: () => addItem(Strat(0, 0, 0)),
-                  icon: const Icon(Icons.add),
-                  label: const Text('Strat'),
-                  style:
-                      ElevatedButton.styleFrom(backgroundColor: Colors.green)),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (formKey.currentState!.validate()) {
-                      formKey.currentState?.save();
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  PaginaCalcul(straturi: straturi)));
-                    }
-                  },
-                  icon: const Icon(Icons.calculate),
-                  label: const Text('Calculează')),
-            )
+                padding: const EdgeInsets.all(10),
+                child: ElevatedButton.icon(
+                    onPressed: () => addItem(Strat(0, 0, 0)),
+                    icon: const Icon(Icons.add),
+                    label: const Text('Strat'),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green))),
+            Row(children: [
+              Expanded(
+                  child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: ElevatedButton.icon(
+                        onPressed: () => setState(() {
+                          // for(final strat in straturi){
+                          //   removeItem(strat);
+                          // }
+                          listKey = GlobalKey<AnimatedListState>();
+                          straturi.clear();
+                          addItem(Strat(0.05, 1.1, 0.04));
+                          addItem(Strat(0.25, 6.1, 0.05));
+                          addItem(Strat(0.10, 30, 0.04));
+                        }),
+                        icon: const Icon(Icons.format_list_numbered_sharp),
+                        label: const Text('Exemplu'),
+                      ))),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(10),
+                  child: ElevatedButton.icon(
+                      onPressed: () {
+                        if (formKey.currentState!.validate()) {
+                          formKey.currentState?.save();
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) =>
+                                      PaginaCalcul(straturi: straturi)));
+                        }
+                      },
+                      icon: const Icon(Icons.calculate),
+                      label: const Text('Calculează')),
+                ),
+              ),
+            ]),
           ]),
         ));
   }
@@ -129,34 +149,40 @@ class CardStrat extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 5.0, right: 5.0),
       child: Card(
-        child: Wrap(alignment: WrapAlignment.spaceAround, children: [
-          SizedBox(
-            width: 100,
-            child: ModelTextField(
-                title: 'Grosimea d',
-                suffixText: 'cm',
-                keyboardType: TextInputType.number,
-                onSaved: (value) => strat.d = double.parse(value!)),
-          ),
-          SizedBox(
-            width: 230,
-            child: ModelTextField(
-                title: 'Factorul rezistenței la aburi μ',
-                keyboardType: TextInputType.number,
-                onSaved: (value) => strat.miu = double.parse(value!)),
-          ),
-          SizedBox(
-            width: 300,
-            child: ModelTextField(
-                title: 'Coeficientul de conductivitate termică λ',
-                suffixText: '%',
-                keyboardType: TextInputType.number,
-                onSaved: (value) => strat.lambda = double.parse(value!)),
-          ),
-          IconButton(
-              onPressed: () => deleteCallback(strat),
-              icon: const Icon(Icons.delete, color: Colors.red))
-        ]),
+        child: Wrap(
+            crossAxisAlignment: WrapCrossAlignment.center,
+            alignment: WrapAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                width: 100,
+                child: ModelTextField(
+                    title: 'Grosimea d',
+                    initialValue: (strat.d * 100).toString(),
+                    suffixText: 'cm',
+                    keyboardType: TextInputType.number,
+                    onSaved: (value) => strat.d = double.parse(value!) / 100),
+              ),
+              SizedBox(
+                width: 230,
+                child: ModelTextField(
+                    title: 'Factorul rezistenței la aburi μ',
+                    initialValue: strat.miu.toString(),
+                    keyboardType: TextInputType.number,
+                    onSaved: (value) => strat.miu = double.parse(value!)),
+              ),
+              SizedBox(
+                width: 300,
+                child: ModelTextField(
+                    title: 'Coeficientul de conductivitate termică λ',
+                    initialValue: strat.lambda.toString(),
+                    suffixText: 'W/m',
+                    keyboardType: TextInputType.number,
+                    onSaved: (value) => strat.lambda = double.parse(value!)),
+              ),
+              IconButton(
+                  onPressed: () => deleteCallback(strat),
+                  icon: const Icon(Icons.delete, color: Colors.red))
+            ]),
       ),
     );
   }
@@ -184,7 +210,7 @@ class ModelTextField extends StatelessWidget {
   final String? suffixText;
   final EdgeInsetsGeometry padding;
 
-  String? notEmptyValidator(String? value) {
+  static String? notEmptyValidator(String? value) {
     if (value == null || value.isEmpty) {
       return "Acest câmp este obligatoriu";
     }

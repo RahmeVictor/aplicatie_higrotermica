@@ -1,6 +1,9 @@
 import 'dart:math' show e, pow;
 
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+const rsi = 0.125;
+const rse = 0.042;
 
 abstract class SubSuperScript {
   SubSuperScript(this.text);
@@ -30,7 +33,8 @@ class Superscript extends SubSuperScript {
   Offset get offset => const Offset(1, -10);
 }
 
-RichText simplifiedText(List<dynamic> text) {
+Widget simplifiedText(List<dynamic> text,
+    [padding = const EdgeInsets.only(top: 10, left: 10)]) {
   final List<InlineSpan> children = [];
   for (final element in text) {
     if (element is String) {
@@ -39,8 +43,15 @@ RichText simplifiedText(List<dynamic> text) {
       children.add(element.span);
     }
   }
-  return RichText(text: TextSpan(children: children));
+  return Padding(
+    padding: padding,
+    child: SelectableText.rich(TextSpan(children: children)),
+  );
 }
+
+calcularePresiune(double temperatura) => temperatura >= 0
+    ? 610.5 * pow(e, (17.269 * temperatura) / (237.3 + temperatura))
+    : 610.5 * pow(e, (21.875 * temperatura) / (265.5 + temperatura));
 
 class Strat {
   Strat(this.d, this.miu, this.lambda);
@@ -62,7 +73,7 @@ class Strat {
 
   double get r => d / lambda;
 
-  RichText toStringIndex(int index) => simplifiedText([
+  Widget toStringIndex(int index) => simplifiedText([
         'd',
         Subscript('$index'),
         ' = $d m, μ',
@@ -72,7 +83,7 @@ class Strat {
         ' = $lambda W/m'
       ]);
 
-  RichText rvToString(int index) => simplifiedText([
+  Widget rvToString(int index) => simplifiedText([
         'Rv',
         Subscript('$index'),
         ' = 50 ⋅ 10',
@@ -84,9 +95,7 @@ class Strat {
 class DateIntExt {
   // TODO întreabă pe Stef daca teta >= 0
   DateIntExt(this.teta, this.ro)
-      : ps = teta >= 0
-            ? 610.5 * pow(e, (17.269 * teta) / (237.3 + teta))
-            : 610.5 * pow(e, (21.875 * teta) / (265.5 + teta)) {
+      : ps = calcularePresiune(teta) {
     // TODO întreabă pe Stef daca trebuie -teta la < 0
     p = (ps * ro) / 100.0;
   }
@@ -99,6 +108,6 @@ class DateIntExt {
 
   double ps;
 
-  /// Pi si Pe
+  /// Pi si Pe, presiunea partiala a vaporilor
   late double p;
 }
