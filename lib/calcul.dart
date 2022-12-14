@@ -1,9 +1,49 @@
 import 'dart:math' show e, pow;
 
-DateIntExt dateIntrare = DateIntExt(0, 0);
+import 'package:flutter/cupertino.dart';
+
+abstract class SubSuperScript {
+  SubSuperScript(this.text);
+
+  final String text;
+
+  Offset get offset;
+
+  WidgetSpan get span => WidgetSpan(
+          child: Transform.translate(
+        offset: offset,
+        child: Text(text, textScaleFactor: 0.7),
+      ));
+}
+
+class Subscript extends SubSuperScript {
+  Subscript(super.text);
+
+  @override
+  Offset get offset => const Offset(1, 4);
+}
+
+class Superscript extends SubSuperScript {
+  Superscript(super.text);
+
+  @override
+  Offset get offset => const Offset(1, -10);
+}
+
+RichText simplifiedText(List<dynamic> text) {
+  final List<InlineSpan> children = [];
+  for (final element in text) {
+    if (element is String) {
+      children.add(TextSpan(text: element));
+    } else if (element is SubSuperScript) {
+      children.add(element.span);
+    }
+  }
+  return RichText(text: TextSpan(children: children));
+}
 
 class Strat {
-  Strat(this.d, this.miu, this.lambda) : rv = 50 * pow(10, 8) * miu * d;
+  Strat(this.d, this.miu, this.lambda);
 
   /// Grosimea straturilor în metri
   double d;
@@ -11,11 +51,34 @@ class Strat {
   /// μ factorul rezistenței la aburi
   double miu;
 
-  /// Coeficientul de conductivitate termică
+  /// λ Coeficientul de conductivitate termică
   double lambda;
 
   /// Rv1...Rvn
-  double rv;
+  double get rv => 50 * pow(10, 8) * rvSimplu;
+
+  /// Pentru afișare simplificată
+  double get rvSimplu => miu * d;
+
+  double get r => d / lambda;
+
+  RichText toStringIndex(int index) => simplifiedText([
+        'd',
+        Subscript('$index'),
+        ' = $d m, μ',
+        Subscript('$index'),
+        ' = $miu, λ',
+        Subscript('$index'),
+        ' = $lambda W/m'
+      ]);
+
+  RichText rvToString(int index) => simplifiedText([
+        'Rv',
+        Subscript('$index'),
+        ' = 50 ⋅ 10',
+        Superscript('8'),
+        ' ⋅ ${rvSimplu.toStringAsFixed(3)}'
+      ]);
 }
 
 class DateIntExt {
@@ -38,25 +101,4 @@ class DateIntExt {
 
   /// Pi si Pe
   late double p;
-}
-
-List<double> calculeaza(List<Strat> straturi) {
-  final dateIntrare = DateIntExt(20, 80);
-  final dateExterior = DateIntExt(-10, 85);
-
-  // // Citire straturi
-  // straturi.add(Strat(5, 1.1, 0.04));
-  // straturi.add(Strat(25, 6.1, 0.05));
-  // straturi.add(Strat(10, 30, 0.04));
-
-  final rv = straturi.fold(0.0, (total, strat) => total + strat.rv);
-  final List<double> presiuniPartiale = [];
-  for (var i = 0; i < straturi.length; i++) {
-    double rvStraturi =
-        straturi.take(i + 1).fold(0.0, (total, strat) => total + strat.rv);
-    // TODO intreaba pe Stef daca (rvStraturi / rv) sau fara paranteza
-    presiuniPartiale.add(
-        dateIntrare.p - (rvStraturi / rv) * (dateIntrare.p - dateExterior.p));
-  }
-  return presiuniPartiale;
 }

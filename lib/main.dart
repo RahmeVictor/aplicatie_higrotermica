@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'calcul.dart';
+import 'pagina_calcul.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,10 +15,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        title: 'Flutter Demo',
+        title: 'Aplicație Higrotermică',
         theme:
             ThemeData(primarySwatch: Colors.blue, brightness: Brightness.dark),
-        home: const MyHomePage(title: 'Flutter Demo Home Page'));
+        home: const MyHomePage(title: 'Aplicație Higrotermică'));
   }
 }
 
@@ -62,20 +63,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 }),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                   onPressed: () => addItem(Strat(0, 0, 0)),
-                  child: const Icon(Icons.add)),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Strat'),
+                  style:
+                      ElevatedButton.styleFrom(backgroundColor: Colors.green)),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                   onPressed: () {
                     if (formKey.currentState!.validate()) {
                       formKey.currentState?.save();
-                      final result = calculeaza(straturi);
-                    } else {}
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  PaginaCalcul(straturi: straturi)));
+                    }
                   },
-                  child: const Text('Calculează')),
+                  icon: const Icon(Icons.calculate),
+                  label: const Text('Calculează')),
             )
           ]),
         ));
@@ -120,22 +129,30 @@ class CardStrat extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(left: 5.0, right: 5.0),
       child: Card(
-        child: Row(children: [
-          Expanded(
-              child: ModelTextField(
-                  title: 'Grosimea in cm',
-                  keyboardType: TextInputType.number,
-                  onSaved: (value) => strat.d = double.parse(value!))),
-          Expanded(
-              child: ModelTextField(
-                  title: 'Factorul rezistenței la aburi μ',
-                  keyboardType: TextInputType.number,
-                  onSaved: (value) => strat.miu = double.parse(value!))),
-          Expanded(
-              child: ModelTextField(
-                  title: 'Coeficientul de conductivitate termică',
-                  keyboardType: TextInputType.number,
-                  onSaved: (value) => strat.lambda = double.parse(value!))),
+        child: Wrap(alignment: WrapAlignment.spaceAround, children: [
+          SizedBox(
+            width: 100,
+            child: ModelTextField(
+                title: 'Grosimea d',
+                suffixText: 'cm',
+                keyboardType: TextInputType.number,
+                onSaved: (value) => strat.d = double.parse(value!)),
+          ),
+          SizedBox(
+            width: 230,
+            child: ModelTextField(
+                title: 'Factorul rezistenței la aburi μ',
+                keyboardType: TextInputType.number,
+                onSaved: (value) => strat.miu = double.parse(value!)),
+          ),
+          SizedBox(
+            width: 300,
+            child: ModelTextField(
+                title: 'Coeficientul de conductivitate termică λ',
+                suffixText: '%',
+                keyboardType: TextInputType.number,
+                onSaved: (value) => strat.lambda = double.parse(value!)),
+          ),
           IconButton(
               onPressed: () => deleteCallback(strat),
               icon: const Icon(Icons.delete, color: Colors.red))
@@ -181,6 +198,7 @@ class ModelTextField extends StatelessWidget {
       child: TextFormField(
           initialValue: initialValue,
           keyboardType: keyboardType,
+          textAlign: TextAlign.end,
           validator: notEmptyValidator,
           onSaved: onSaved,
           maxLines: maxLines,
@@ -188,6 +206,7 @@ class ModelTextField extends StatelessWidget {
             labelText: title,
             border: InputBorder.none,
             suffixText: suffixText,
+            floatingLabelAlignment: FloatingLabelAlignment.center,
           )),
     );
   }
