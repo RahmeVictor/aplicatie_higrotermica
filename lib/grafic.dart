@@ -188,7 +188,7 @@ class LineChartSample1State extends State<LineChartSample1> {
   @override
   Widget build(BuildContext context) {
     return AspectRatio(
-      aspectRatio: 1.43,
+      aspectRatio: MediaQuery.of(context).size.aspectRatio * 1.1,
       child: DecoratedBox(
           decoration: BoxDecoration(
               borderRadius: const BorderRadius.all(Radius.circular(18)),
@@ -201,9 +201,9 @@ class LineChartSample1State extends State<LineChartSample1> {
               const SizedBox(height: 20),
               const Text('Grafic final',
                   textAlign: TextAlign.center,
+                  textScaleFactor: 1.8,
                   style: TextStyle(
                       color: Colors.white,
-                      fontSize: 32,
                       fontWeight: FontWeight.bold,
                       letterSpacing: 2)),
               const SizedBox(height: 37),

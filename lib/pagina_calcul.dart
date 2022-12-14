@@ -1,5 +1,6 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'ajutoare_calcul.dart';
 import 'grafic.dart';
@@ -57,7 +58,10 @@ class _PaginaCalculState extends State<PaginaCalcul> {
         .map((e) => FlSpot(e.key.toDouble(), e.value.roundToDouble()))
         .toList();
     return Scaffold(
-      appBar: AppBar(title: const Text('Rezultat 🎉')),
+      appBar: AppBar(
+          title: const Text('Rezultat 🎉'),
+          systemOverlayStyle: const SystemUiOverlayStyle(
+              systemNavigationBarColor: Colors.black)),
       body: Padding(
           padding: const EdgeInsets.all(10),
           child: ListView(children: [

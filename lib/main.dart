@@ -41,8 +41,9 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget.title),
-        ),
+            title: Text(widget.title),
+            systemOverlayStyle: const SystemUiOverlayStyle(
+                systemNavigationBarColor: Colors.black)),
         body: Form(
           key: formKey,
           child: ListView(children: [
@@ -152,31 +153,38 @@ class CardStrat extends StatelessWidget {
         child: Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,
             alignment: WrapAlignment.spaceEvenly,
+            runSpacing: 10,
             children: [
               SizedBox(
-                width: 100,
+                width: 200,
                 child: ModelTextField(
                     title: 'Grosimea d',
-                    initialValue: (strat.d * 100).toString(),
                     suffixText: 'cm',
+                    initialValue:
+                        strat.d != 0 ? (strat.d * 100).toString() : null,
+                    inputFormatters: defaultFormatter,
                     keyboardType: TextInputType.number,
                     onSaved: (value) => strat.d = double.parse(value!) / 100),
               ),
               SizedBox(
-                width: 230,
+                width: 250,
                 child: ModelTextField(
                     title: 'Factorul rezistenței la aburi μ',
-                    initialValue: strat.miu.toString(),
+                    suffixText: '%',
+                    initialValue: strat.miu != 0 ? strat.miu.toString() : null,
                     keyboardType: TextInputType.number,
+                    inputFormatters: defaultFormatter,
                     onSaved: (value) => strat.miu = double.parse(value!)),
               ),
               SizedBox(
-                width: 300,
+                width: 330,
                 child: ModelTextField(
                     title: 'Coeficientul de conductivitate termică λ',
-                    initialValue: strat.lambda.toString(),
                     suffixText: 'W/m',
+                    initialValue:
+                        strat.lambda != 0 ? strat.lambda.toString() : null,
                     keyboardType: TextInputType.number,
+                    inputFormatters: defaultFormatter,
                     onSaved: (value) => strat.lambda = double.parse(value!)),
               ),
               IconButton(
@@ -188,6 +196,12 @@ class CardStrat extends StatelessWidget {
   }
 }
 
+/// Allows only 3 decimal digits and replaces ',' with '.'
+final defaultFormatter = [
+  FilteringTextInputFormatter.deny(',', replacementString: '.'),
+  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+];
+
 class ModelTextField extends StatelessWidget {
   const ModelTextField({
     Key? key,
@@ -196,9 +210,8 @@ class ModelTextField extends StatelessWidget {
     this.keyboardType,
     this.inputFormatters,
     this.onSaved,
-    this.maxLines = 1,
     this.suffixText,
-    this.padding = const EdgeInsets.only(left: 10),
+    this.padding = const EdgeInsets.all(10),
   }) : super(key: key);
 
   final String? title;
@@ -206,13 +219,21 @@ class ModelTextField extends StatelessWidget {
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String?)? onSaved;
-  final int? maxLines;
   final String? suffixText;
   final EdgeInsetsGeometry padding;
 
   static String? notEmptyValidator(String? value) {
     if (value == null || value.isEmpty) {
-      return "Acest câmp este obligatoriu";
+      return 'Acest câmp este obligatoriu';
+    }
+    return null;
+  }
+
+  static String? notZeroValidator(String? value) {
+    final notEmptyError = notEmptyValidator(value);
+    if (notEmptyError != null) return notEmptyError;
+    if (value == null || double.parse(value) == 0) {
+      return 'Nu introduce valori egale cu 0';
     }
     return null;
   }
@@ -224,13 +245,13 @@ class ModelTextField extends StatelessWidget {
       child: TextFormField(
           initialValue: initialValue,
           keyboardType: keyboardType,
-          textAlign: TextAlign.end,
-          validator: notEmptyValidator,
+          inputFormatters: inputFormatters,
+          textAlign: TextAlign.start,
+          validator: notZeroValidator,
           onSaved: onSaved,
-          maxLines: maxLines,
           decoration: InputDecoration(
             labelText: title,
-            border: InputBorder.none,
+            border: const OutlineInputBorder(),
             suffixText: suffixText,
             floatingLabelAlignment: FloatingLabelAlignment.center,
           )),
