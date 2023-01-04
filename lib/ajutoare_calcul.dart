@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 const rsi = 0.125;
 const rse = 0.042;
 
+final dateInterior = DateIntExt(0, 0);
+final dateExterior = DateIntExt(0, 0);
+
 abstract class SubSuperScript {
   SubSuperScript(this.text);
 
@@ -93,21 +96,16 @@ class Strat {
 }
 
 class DateIntExt {
-  // TODO întreabă pe Stef daca teta >= 0
-  DateIntExt(this.teta, this.ro)
-      : ps = calcularePresiune(teta) {
-    // TODO întreabă pe Stef daca trebuie -teta la < 0
-    p = (ps * ro) / 100.0;
-  }
+  DateIntExt(this.temperatura, this.umiditate);
 
   /// Temperatura θ °C
-  final double teta;
+  double temperatura;
 
   /// Umiditatea ϕ %
-  final double ro;
+  double umiditate;
 
-  double ps;
+  double get ps => calcularePresiune(temperatura);
 
   /// Pi si Pe, presiunea partiala a vaporilor
-  late double p;
+  double get p => (ps * umiditate) / 100.0;
 }

@@ -47,6 +47,10 @@ class _MyHomePageState extends State<MyHomePage> {
         body: Form(
           key: formKey,
           child: ListView(children: [
+            Wrap(alignment: WrapAlignment.center, children: [
+              DateIntExtCard(dateIntExt: dateInterior, title: 'Interior'),
+              DateIntExtCard(dateIntExt: dateExterior, title: 'Exterior')
+            ]),
             AnimatedList(
                 key: listKey,
                 shrinkWrap: true,
@@ -79,6 +83,12 @@ class _MyHomePageState extends State<MyHomePage> {
                           // for(final strat in straturi){
                           //   removeItem(strat);
                           // }
+                          dateInterior.temperatura = 20;
+                          dateInterior.umiditate = 80;
+                          dateExterior.temperatura = -10;
+                          dateExterior.umiditate = 85;
+                          formKey.currentState?.reset();
+
                           listKey = GlobalKey<AnimatedListState>();
                           straturi.clear();
                           addItem(Strat(0.05, 1.1, 0.04));
@@ -158,32 +168,31 @@ class CardStrat extends StatelessWidget {
               SizedBox(
                 width: 200,
                 child: ModelTextField(
-                    title: 'Grosimea d',
+                    title: 'Grosimea',
+                    prefixText: 'd = ',
                     suffixText: 'cm',
                     initialValue:
                         strat.d != 0 ? (strat.d * 100).toString() : null,
                     inputFormatters: defaultFormatter,
-                    keyboardType: TextInputType.number,
                     onSaved: (value) => strat.d = double.parse(value!) / 100),
               ),
               SizedBox(
                 width: 250,
                 child: ModelTextField(
-                    title: 'Factorul rezistenței la aburi μ',
-                    suffixText: '%',
+                    title: 'Factorul rezistenței la aburi',
+                    prefixText: 'μ = ',
                     initialValue: strat.miu != 0 ? strat.miu.toString() : null,
-                    keyboardType: TextInputType.number,
                     inputFormatters: defaultFormatter,
                     onSaved: (value) => strat.miu = double.parse(value!)),
               ),
               SizedBox(
                 width: 330,
                 child: ModelTextField(
-                    title: 'Coeficientul de conductivitate termică λ',
+                    title: 'Coeficientul de conductivitate termică',
+                    prefixText: 'λ = ',
                     suffixText: 'W/m',
                     initialValue:
                         strat.lambda != 0 ? strat.lambda.toString() : null,
-                    keyboardType: TextInputType.number,
                     inputFormatters: defaultFormatter,
                     onSaved: (value) => strat.lambda = double.parse(value!)),
               ),
@@ -205,21 +214,25 @@ final defaultFormatter = [
 class ModelTextField extends StatelessWidget {
   const ModelTextField({
     Key? key,
+    this.controller,
     this.title,
     this.initialValue,
-    this.keyboardType,
+    this.keyboardType = TextInputType.number,
     this.inputFormatters,
     this.onSaved,
     this.suffixText,
+    this.prefixText,
     this.padding = const EdgeInsets.all(10),
   }) : super(key: key);
 
+  final TextEditingController? controller;
   final String? title;
   final String? initialValue;
   final TextInputType? keyboardType;
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String?)? onSaved;
   final String? suffixText;
+  final String? prefixText;
   final EdgeInsetsGeometry padding;
 
   static String? notEmptyValidator(String? value) {
@@ -243,6 +256,7 @@ class ModelTextField extends StatelessWidget {
     return Padding(
       padding: padding,
       child: TextFormField(
+          controller: controller,
           initialValue: initialValue,
           keyboardType: keyboardType,
           inputFormatters: inputFormatters,
@@ -251,10 +265,60 @@ class ModelTextField extends StatelessWidget {
           onSaved: onSaved,
           decoration: InputDecoration(
             labelText: title,
-            border: const OutlineInputBorder(),
+            //border: const OutlineInputBorder(),
             suffixText: suffixText,
+            prefixText: prefixText,
             floatingLabelAlignment: FloatingLabelAlignment.center,
           )),
     );
+  }
+}
+
+class DateIntExtCard extends StatelessWidget {
+  const DateIntExtCard(
+      {Key? key, required this.dateIntExt, required this.title})
+      : super(key: key);
+
+  final DateIntExt dateIntExt;
+  final String title;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+        child: Column(children: [
+      Text(title),
+      IntrinsicWidth(
+          child: Wrap(
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+            SizedBox(
+                width: 200,
+                child: ModelTextField(
+                    key: Key(dateIntExt.temperatura.toString()),
+                    title: 'Temperatura',
+                    prefixText: 'θ = ',
+                    suffixText: '°C',
+                    initialValue: dateIntExt.temperatura != 0
+                        ? dateIntExt.temperatura.toString()
+                        : null,
+                    inputFormatters: defaultFormatter,
+                    onSaved: (value) =>
+                        dateIntExt.temperatura = double.parse(value!))),
+            SizedBox(
+                width: 200,
+                child: ModelTextField(
+                    key: Key(dateIntExt.umiditate.toString()),
+                    title: 'Umiditatea',
+                    prefixText: 'ϕ = ',
+                    suffixText: '%',
+                    initialValue: dateIntExt.umiditate != 0
+                        ? dateIntExt.umiditate.toString()
+                        : null,
+                    inputFormatters: defaultFormatter,
+                    onSaved: (value) =>
+                        dateIntExt.umiditate = double.parse(value!))),
+          ])),
+    ]));
   }
 }

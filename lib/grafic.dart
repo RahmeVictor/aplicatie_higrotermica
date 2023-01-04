@@ -31,7 +31,7 @@ class _LineChart extends StatelessWidget {
         borderData: borderData,
         lineBarsData: lineBarsData1,
         minX: 0,
-        maxX: 5,
+        maxX: 4,
         maxY: maxY,
         minY: 0,
       );

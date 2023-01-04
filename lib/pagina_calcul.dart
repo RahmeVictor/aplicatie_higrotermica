@@ -15,9 +15,6 @@ class PaginaCalcul extends StatefulWidget {
 }
 
 class _PaginaCalculState extends State<PaginaCalcul> {
-  final dateInterior = DateIntExt(20, 80);
-  final dateExterior = DateIntExt(-10, 85);
-
   late final double r;
   late final double rt;
   late final double tetaSI;
@@ -81,7 +78,7 @@ class _PaginaCalculState extends State<PaginaCalcul> {
               Text('Presiunea interioara: ${dateInterior.p.round()} Pa\n'
                   'Presiunea exterioara: ${dateExterior.p.round()} Pa'),
               const Divider(),
-              const Text('Nus cum se numesc astea ceva Rv-uri'),
+              const Text('Rezistența la difuzia vaporilor de apă'),
               ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -100,7 +97,7 @@ class _PaginaCalculState extends State<PaginaCalcul> {
                         ' = ${presiuniVapori[index].round()} Pa'
                       ])),
               const Divider(),
-              const Text('Nus ce mai sunt si astea nu mai vreau'),
+              const Text('Rezistența la permeabilitate termică'),
               ListView.builder(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -186,17 +183,18 @@ class _PaginaCalculState extends State<PaginaCalcul> {
       widget.straturi.fold(0.0, (total, strat) => total + strat.r);
 
   List<double> calculeazaTemperaturi() {
-    final deltaTemperatura = dateInterior.teta - dateExterior.teta;
-    tetaSI = dateInterior.teta - (rsi / rt) * deltaTemperatura;
-    tetaSE = dateInterior.teta - ((rsi + r) / rt) * deltaTemperatura;
+    final deltaTemperatura =
+        dateInterior.temperatura - dateExterior.temperatura;
+    tetaSI = dateInterior.temperatura - (rsi / rt) * deltaTemperatura;
+    tetaSE = dateInterior.temperatura - ((rsi + r) / rt) * deltaTemperatura;
 
     final List<double> temperaturi = [];
     for (var i = 0; i < widget.straturi.length - 1; i++) {
       double tetaStraturi = widget.straturi
           .take(i + 1)
           .fold(0.0, (total, strat) => total + strat.r);
-      temperaturi.add(
-          dateInterior.teta - ((rsi + tetaStraturi) / rt) * deltaTemperatura);
+      temperaturi.add(dateInterior.temperatura -
+          ((rsi + tetaStraturi) / rt) * deltaTemperatura);
     }
     return temperaturi;
   }
