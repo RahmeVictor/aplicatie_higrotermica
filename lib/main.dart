@@ -208,7 +208,7 @@ class CardStrat extends StatelessWidget {
 /// Allows only 3 decimal digits and replaces ',' with '.'
 final defaultFormatter = [
   FilteringTextInputFormatter.deny(',', replacementString: '.'),
-  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,3}')),
+  FilteringTextInputFormatter.allow(RegExp(r'^-?\d*\.?\d{0,3}')),
 ];
 
 class ModelTextField extends StatelessWidget {
